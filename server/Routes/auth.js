@@ -4,7 +4,7 @@ const controller = require('../Controllers/auth.js');
 
 
 // Роут на login
-// router.post('/login', controller.login);
+router.post('/login', controller.login);
 
 
 // Роут на register
