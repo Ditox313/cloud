@@ -1,10 +1,21 @@
+import Registration from "./components/Registration/Registration";
+import Navbar from "./components/navbar/Navbar.jsx";
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import './app.css'
 
 
 function App() {
   return (
-    <div className="App">
-      <h1>Работает</h1>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Navbar/>
+            <div className="wrap">
+              <Routes >
+                <Route path="/registration" Component={Registration} />
+              </Routes >
+            </div>
+      </div>
+    </BrowserRouter>
   );
 }
 
