@@ -25,3 +25,21 @@ export const login =  (email, password) => {
         }
     }
 }
+
+
+
+// Получаем данные от юзера при любом заходе в приложение
+export const auth = () => {
+    return async (dispatch) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/auth/auth`, { headers: { Authorization: localStorage.getItem('token') }})
+
+            dispatch(setUser(response.data.user))
+            localStorage.setItem('token', response.data.token)
+
+        } catch (error) {
+            localStorage.removeItem('token')
+            console.log('Пользователь не авторизирован');
+        }
+    }
+}

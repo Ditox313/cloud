@@ -21,7 +21,6 @@ module.exports.login = async function(req, res) {
         if (passwordResult) {
             // Генерация токена(Генереруем объект с данными о пользователе и его кодируем)
             const token = jwt.sign({
-                    email: candidate.email,
                     id: candidate._id
                 },
                 config.get('secretKey'), { expiresIn: 60 * 60 }
@@ -85,4 +84,34 @@ module.exports.register = async function(req, res) {
 
 
 
+};
+
+
+
+// Контроллер для auth. Получаем данные о пользователе при любом заходе в приложение
+module.exports.auth = async function (req, res) {
+    try {
+        const user = await User.findOne({id: req.user._id})
+
+        // Перезапишем токен
+        const token = jwt.sign({
+            id: user._id
+        },config.get('secretKey'), { expiresIn: 60 * 60 });
+
+        // Отправляем ответ
+        res.status(200).json({
+            token: `Bearer ${token}`,
+            user: {
+                id: user._id,
+                email: user.email,
+                diskSpace: user.diskSpace,
+                userSpace: user.usedSpace,
+                avatar: user.avatar
+            }
+        });
+    } catch (error) {
+        res.status(404).json({
+            message: "Ошибка"
+        });
+    }
 };
