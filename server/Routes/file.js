@@ -5,8 +5,12 @@ const authMiddleware = require('../middleware/auth.middleware.js');
 
 
 
-// Получаем данные о пользователе при любом заходе в приложение
-router.get('/test', authMiddleware, controller.test);
+// Создание директории
+router.post('', authMiddleware, controller.createDir);
+
+
+// Получить файлы
+router.get('', authMiddleware, controller.getFiles);
 
 
 

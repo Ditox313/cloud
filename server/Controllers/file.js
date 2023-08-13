@@ -1,51 +1,72 @@
-const File = require('../Models/File.js');
-const bcrypt = require('bcryptjs');
+const File = require('../Models/File');
+const fileService = require('../Services/fileService.js');
+const User = require('../Models/User.js');
 const errorHandler = require('../Utils/errorHendler.js');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
 
 
-// Контроллер для Login
-module.exports.test = async function(req, res) {
 
-    // const candidate = await User.findOne({
-    //     email: req.body.email
-    // });
+// Контроллер для createDir
+module.exports.createDir = async function(req, res) {
+    try {
+        const file =  new File({
+            name: req.body.name,
+            type: req.body.type,
+            parent: req.body.parent,
+            user: req.user.id
+        });
 
 
-    // if (candidate) {
-    //     // Проверяем на соответствие пароля
-    //     const passwordResult = bcrypt.compareSync(req.body.password, candidate.password);
+        // По id найдем родительскую директорию
+        const parentFile = await File.findOne({ _id: req.body.parent }) 
+        
 
-    //     if (passwordResult) {
-    //         // Генерация токена(Генереруем объект с данными о пользователе и его кодируем)
-    //         const token = jwt.sign({
-    //                 id: candidate._id
-    //             },
-    //             config.get('secretKey'), { expiresIn: 60 * 60 }
-    //         );
+        // Если родительский файл не был найден, то он будет добавлен в корневую директорию
+        if(!parentFile)
+        {
+            // Если нет родительской директории
+            file.path = req.body.name
+            await fileService.createDir(file)
+        }
+        else
+        {
+            // Если есть родительская категория
+            file.path = `${parentFile.path}/${file.name}`
+            await fileService.createDir(file)
+            parentFile.childs.push(file._id)
+            await parentFile.save()
+        }
 
-    //         // Отправляем ответ
-    //         res.status(200).json({
-    //             token: `Bearer ${token}`,
-    //             user: {
-    //                 id: candidate._id,
-    //                 email: candidate.email,
-    //                 diskSpace: candidate.diskSpace,
-    //                 userSpace: candidate.usedSpace,
-    //                 avatar: candidate.avatar
-    //             }
-    //         });
-    //     } else {
-    //         res.status(401).json({
-    //             message: "Ошибка. Пароли не совпадают. Попробуйте еще раз!"
-    //         });
-    //     }
-    // } else {
-    //     res.status(404).json({
-    //         message: "Пользователя с таким E-mail не найдено!"
-    //     });
-    // }
+        await file.save()
+
+        res.status(200).json(file);
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            message: "Ошибка создания директории!"
+        });
+    }
+
 };
 
+
+// Получение файлов
+module.exports.getFiles = async function (req, res) {
+    try {
+        
+        const files = await File.find({user: req.user.id, parent: req.query.parent})
+
+        res.status(200).json({files});
+
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            message: "Файлов не найдено. Ошибка"
+        });
+    }
+
+};

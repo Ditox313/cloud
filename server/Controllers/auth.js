@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const errorHandler = require('../Utils/errorHendler');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const File = require('../Models/File.js');
+const fileService = require('../Services/fileService.js');
 
 
 
@@ -76,6 +78,10 @@ module.exports.register = async function(req, res) {
 
         try {
             await user.save();
+
+            // Создаем для пользователя отдельную папку
+            await fileService.createDir(new File({user: user._id, name: ''}))
+
             res.status(201).json(user);
         } catch (error) {
             errorHandler(res, error);

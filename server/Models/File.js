@@ -9,10 +9,9 @@ const File = new Schema({
     accessLink: {type:String},
     size: {type: Number, default: 0},
     path: {type: String, default: ''},
- 
     user: {type: ObjectId, ref: 'User'},
     parent: {type: ObjectId, ref: 'File'},
     childs: [{type: ObjectId, ref: 'File'}],
 })
 
-module.exports = mongoose.model('File', File)
+module.exports = mongoose.model('files', File)
