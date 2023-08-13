@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const config = require('config');
 const authRoutes = require('./Routes/auth.js');
+const fileRoutes = require('./Routes/file.js');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -25,6 +26,9 @@ app.use(cors());
 
 // Регистрируем роут auth
 app.use('/api/auth', authRoutes);
+
+// Регистрируем роут file
+app.use('/api/files', fileRoutes);
 
 const start = async ()=> {
     try {
